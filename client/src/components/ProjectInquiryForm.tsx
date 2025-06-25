@@ -2,11 +2,13 @@ import React, { useState, useRef } from 'react';
 import { Upload, Send, FileText, AlertCircle, CheckCircle } from 'lucide-react';
 import { validatePdfFile, validateEmail, checkFileForMaliciousContent, createPdfPreviewUrl } from '../utils/fileValidation';
 import Popup from '../components/common/Popup';
+import LegalModal from './legal/LegalModal';
 
 const ProjectInquiryForm: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    organizationType: '',
     project: null as File | null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,6 +20,10 @@ const ProjectInquiryForm: React.FC = () => {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Legal modal state
+  const [legalModalOpen, setLegalModalOpen] = useState(false);
+  const [legalModalType, setLegalModalType] = useState<'terms' | 'privacy'>('terms');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -106,21 +112,23 @@ const ProjectInquiryForm: React.FC = () => {
   };
 
   const sendProjectInquiry = async () => {
-    // Create the request payload
-    const payload = {
-      fullName: formData.name,
-      email: formData.email,
-      projectDetails: formData.project ? `Project file: ${formData.project.name}` : 'No file attached',
-      pdfUrl: pdfPreviewUrl || ''
-    };
+    // Create FormData for multipart/form-data submission (for file upload)
+    const formDataToSend = new FormData();
+    formDataToSend.append('fullName', formData.name);
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('organizationType', formData.organizationType || '');
+    formDataToSend.append('projectDetails', formData.project ? `Project file: ${formData.project.name}` : 'No file attached');
+    
+    // Append the actual file instead of base64 data URL
+    if (formData.project) {
+      formDataToSend.append('pdfFile', formData.project);
+    }
 
     try {
-      const response = await fetch('http://localhost:5000/api/send-project-inquiry', {
+      const response = await fetch('http://localhost:5000/api/project-inquiry-with-pdf', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+        // Don't set Content-Type header - browser will set it with boundary for multipart/form-data
+        body: formDataToSend,
       });
 
       const data = await response.json();
@@ -163,7 +171,7 @@ const ProjectInquiryForm: React.FC = () => {
       await sendProjectInquiry();
       
       // Reset form and states
-      setFormData({ name: '', email: '', project: null });
+      setFormData({ name: '', email: '', organizationType: '', project: null });
       setFileError('');
       setEmailError('');
       setPdfPreviewUrl(null);
@@ -296,6 +304,20 @@ const ProjectInquiryForm: React.FC = () => {
 
         <div>
           <label className="block font-poppins text-sm font-medium text-gray-700 mb-2">
+            Business/Organization Type
+          </label>
+          <input
+            type="text"
+            name="organizationType"
+            value={formData.organizationType}
+            onChange={handleInputChange}
+            placeholder="e.g. Non-profit, Corporate, Educational, etc."
+            className="w-full px-4 py-3 bg-lightGrey rounded-lg border-0 font-poppins text-gray-700 placeholder-gray-500 focus:ring-2 focus:ring-secondary focus:outline-none transition-all duration-200"
+          />
+        </div>
+
+        <div>
+          <label className="block font-poppins text-sm font-medium text-gray-700 mb-2">
             Project *
           </label>
           <div
@@ -342,7 +364,15 @@ const ProjectInquiryForm: React.FC = () => {
             Let's start building something amazing together.
           </p>
           <p className="font-poppins text-sm text-gray-400 mb-4">
-            By submitting this form, you agree to our <a href="#" className="text-secondary hover:underline">Terms of Service</a> and <a href="#" className="text-secondary hover:underline">Privacy Policy</a>.
+            By submitting this form, you agree to our <a href="terms of service" onClick={(e) => {
+              e.preventDefault();
+              setLegalModalType('terms');
+              setLegalModalOpen(true);
+            }} className="text-secondary hover:underline">Terms of Service</a> and <a href="privacy policy" onClick={(e) => {
+              e.preventDefault();
+              setLegalModalType('privacy');
+              setLegalModalOpen(true);
+            }} className="text-secondary hover:underline">Privacy Policy</a>.
           </p>
           <button
             type="submit"
@@ -368,6 +398,13 @@ const ProjectInquiryForm: React.FC = () => {
         title="Project Inquiry Received!"
         message={successMessage}
         type="success"
+      />
+      
+      {/* Legal Modal */}
+      <LegalModal
+        isOpen={legalModalOpen}
+        onClose={() => setLegalModalOpen(false)}
+        type={legalModalType}
       />
     </div>
   );

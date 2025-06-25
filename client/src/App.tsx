@@ -31,7 +31,7 @@ function App() {
         </main>
 
         {/* Footer */}
-        <footer className="p-6 md:p-8 lg:p-12">
+        <footer className="p-6 md:p-8 lg:p-12 bg-black text-white">
           <div className="text-center">
             <p className="font-poppins text-sm text-gray-400">
               © 2025 LIIGHT DESIGN INC. All rights reserved.

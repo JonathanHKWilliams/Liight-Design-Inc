@@ -1,7 +1,4 @@
-// Email template configurations for LIIGHT DESIGN INC
-// These templates should be created in your EmailJS dashboard
-
-export const EMAIL_TEMPLATES = {
+const EMAIL_TEMPLATES = {
   // Donation Email Template (HTML)
   DONATION_TEMPLATE: `
     <!DOCTYPE html>
@@ -47,7 +44,7 @@ export const EMAIL_TEMPLATES = {
           padding: 20px; 
           border-radius: 12px; 
           text-align: center; 
-          margin: 20px 0; 
+          margin: 20px 0;
         }
         .donation-amount h2 { 
           margin: 0; 
@@ -92,30 +89,25 @@ export const EMAIL_TEMPLATES = {
         
         <div class="content">
           <div class="donation-amount">
-            <h2>${{donation_amount}}</h2>
+            <h2>\${donation_amount}</h2>
             <p>Generous Donation Received</p>
           </div>
           
           <div class="info-section">
             <h3>Donor Information</h3>
-            <p><strong>Name:</strong> {{from_name}}</p>
-            <p><strong>Email:</strong> {{from_email}}</p>
-            <p><strong>Message:</strong> {{message}}</p>
+            <p><strong>Name:</strong> \${from_name}</p>
+            <p><strong>Email:</strong> \${from_email}</p>
+            <p><strong>Message:</strong> \${message}</p>
           </div>
           
           <div class="info-section">
             <h3>Billing Information</h3>
-            <p><strong>Name:</strong> {{billing_name}}</p>
-            <p><strong>Address:</strong> {{billing_address}}</p>
+            <p><strong>Name:</strong> \${billing_name}</p>
+            <p><strong>Address:</strong> \${billing_address}</p>
           </div>
           
-          {{#if discount_eligible}}
-          <div class="reward-badge">
-            SPECIAL REWARD ELIGIBLE!<br>
-            This donor qualifies for a 15% discount on their next design project!
-          </div>
-          {{/if}}
           
+
           <p>This donation will help us complete our project and bring our vision to life. Please follow up with the donor within 24 hours to express our gratitude.</p>
         </div>
         
@@ -205,7 +197,7 @@ export const EMAIL_TEMPLATES = {
     <body>
       <div class="container">
         <div class="header">
-          <h1>🚀 New Project Inquiry!</h1>
+          <h1>New Project Inquiry!</h1>
           <p>LIIGHT DESIGN INC</p>
         </div>
         
@@ -214,9 +206,14 @@ export const EMAIL_TEMPLATES = {
             <h2 style="color: #003F12; margin-top: 0; font-family: 'Changa', Arial, sans-serif;">
               Potential Client Details
             </h2>
-            <p><strong>Name:</strong> {{from_name}}</p>
-            <p><strong>Email:</strong> {{from_email}}</p>
-            <p><strong>Project File:</strong> {{project_file}}</p>
+            <p><strong>Name:</strong> \${from_name}</p>
+            <p><strong>Email:</strong> \${from_email}</p>
+            <p><strong>Organization Type:</strong> \${organization_type}</p>
+            <p><strong>Project File:</strong> \${project_file_name}</p>
+            <div style="margin: 15px 0; padding: 15px; background-color: #f0f8ff; border-radius: 8px; border-left: 4px solid #003F12;">
+              <p style="margin: 0;"><strong> View The Project PDF:</strong></p>
+              <a href="\${project_file_url}" style="display: inline-block; margin-top: 10px; padding: 10px 20px; background-color: #003F12; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Open PDF Document</a>
+            </div>
           </div>
           
           <div class="info-section">
@@ -234,7 +231,7 @@ export const EMAIL_TEMPLATES = {
             <p>This could be the next big project for LIIGHT DESIGN INC. Let's turn their vision into reality!</p>
           </div>
           
-          <p><strong>Important:</strong> Please reply directly to this email to respond to the client. Their email address is: <a href="mailto:{{from_email}}" style="color: #00C44F;">{{from_email}}</a></p>
+          <p><strong>Important:</strong> Please reply directly to this email to respond to the client. Their email address is: <a href="mailto:\${from_email}" style="color: #00C44F;">\${from_email}</a></p>
         </div>
         
         <div class="footer">
@@ -244,10 +241,8 @@ export const EMAIL_TEMPLATES = {
       </div>
     </body>
     </html>
-  `
-};
+  `,
 
-// EmailJS Configuration Instructions
   // Thank You Email Template for users who submit inquiries (HTML)
   THANK_YOU_TEMPLATE: `
     <!DOCTYPE html>
@@ -325,21 +320,21 @@ export const EMAIL_TEMPLATES = {
     <body>
       <div class="container">
         <div class="header">
-          <h1>✨ Thank You for Your Project Inquiry!</h1>
+          <h1>Thank You for Your Project Inquiry!</h1>
           <p>LIIGHT DESIGN INC</p>
         </div>
         
         <div class="content">
           <div class="thank-you-message">
             <h2 style="color: #003F12; margin-top: 0; font-family: 'Changa', Arial, sans-serif;">
-              Hello {{name}}!
+              Hello \${name}!
             </h2>
             <p>Thank you for submitting your project inquiry to LIIGHT DESIGN INC. We're excited to review your project and explore how we can bring your vision to life!</p>
           </div>
           
           <div class="project-details">
             <h3>Your Project Details</h3>
-            <p><strong>Project File:</strong> {{project_file}}</p>
+            <p><strong>Project File:</strong> \${project_file_name}</p>
             <p>Our team is currently reviewing your submission and will get back to you soon with personalized insights and possibilities.</p>
           </div>
           
@@ -403,59 +398,47 @@ export const EMAIL_TEMPLATES = {
         .content { 
           padding: 30px; 
         }
+        .thank-you-message { 
+          background: linear-gradient(135deg, #00C44F10, #003F1210); 
+          padding: 20px; 
+          border-radius: 12px; 
+          border-left: 4px solid #00C44F; 
+          margin: 20px 0; 
+        }
         .donation-amount { 
           background: linear-gradient(135deg, #00C44F, #003F12); 
           color: white; 
           padding: 20px; 
           border-radius: 12px; 
           text-align: center; 
-          margin: 20px 0; 
+          margin: 20px 0;
         }
         .donation-amount h2 { 
           margin: 0; 
           font-family: 'Changa', Arial, sans-serif; 
           font-size: 36px; 
         }
-        .receipt-section { 
+        .receipt-details { 
           background: #f8f9fa; 
           padding: 20px; 
           border-radius: 8px; 
           margin: 15px 0; 
         }
-        .receipt-section h3 { 
+        .receipt-details h3 { 
           color: #003F12; 
           margin-top: 0; 
           font-family: 'Changa', Arial, sans-serif; 
         }
-        .receipt-details {
-          border: 1px solid #e0e0e0;
-          border-radius: 8px;
-          padding: 15px;
-          background: white;
-        }
-        .receipt-details table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-        .receipt-details td {
-          padding: 8px 0;
-          border-bottom: 1px solid #f0f0f0;
-        }
-        .receipt-details td:first-child {
-          font-weight: 600;
-          color: #555;
-        }
-        .reward-badge { 
-          background: linear-gradient(45deg, #FFD700, #FFA500); 
-          color: #003F12; 
-          padding: 15px; 
+        .impact-message { 
+          background: linear-gradient(135deg, #003F12, #00C44F); 
+          color: white; 
+          padding: 20px; 
           border-radius: 8px; 
           text-align: center; 
-          font-weight: bold; 
           margin: 20px 0; 
         }
         .footer { 
-          background: #003F12; 
+          background:rgb(0, 0, 0); 
           color: white; 
           padding: 20px; 
           text-align: center; 
@@ -471,94 +454,45 @@ export const EMAIL_TEMPLATES = {
         </div>
         
         <div class="content">
-          <p>Dear {{donor_name}},</p>
-          
-          <p>Thank you for your generous support of LIIGHT DESIGN INC. Your contribution helps us bring our vision to life and create amazing designs that make a difference.</p>
+          <div class="thank-you-message">
+            <h2 style="color: #003F12; margin-top: 0; font-family: 'Changa', Arial, sans-serif;">
+              Hello \${name}!
+            </h2>
+            <p>Thank you for your generous donation to LIIGHT DESIGN INC. Your support means the world to us and will help bring our vision to life!</p>
+          </div>
           
           <div class="donation-amount">
-            <h2>${{donation_amount}}</h2>
-            <p>Donation Amount</p>
+            <h2>\${donation_amount}</h2>
+            <p>Your Generous Contribution</p>
           </div>
           
-          <div class="receipt-section">
+          <div class="receipt-details">
             <h3>Donation Receipt</h3>
-            <div class="receipt-details">
-              <table>
-                <tr>
-                  <td>Receipt ID:</td>
-                  <td>LD-{{receipt_id}}</td>
-                </tr>
-                <tr>
-                  <td>Date:</td>
-                  <td>{{donation_date}}</td>
-                </tr>
-                <tr>
-                  <td>Donor Name:</td>
-                  <td>{{donor_name}}</td>
-                </tr>
-                <tr>
-                  <td>Donor Email:</td>
-                  <td>{{donor_email}}</td>
-                </tr>
-                <tr>
-                  <td>Billing Address:</td>
-                  <td>{{billing_address}}</td>
-                </tr>
-                <tr>
-                  <td>Payment Method:</td>
-                  <td>Credit Card (xxxx-xxxx-xxxx-{{last_four}})</td>
-                </tr>
-              </table>
-            </div>
+            <p><strong>Transaction ID:</strong> \${transaction_id}</p>
+            <p><strong>Date:</strong> \${date}</p>
+            <p><strong>Payment Method:</strong> Credit Card (ending in \${last_four})</p>
           </div>
           
-          {{#if discount_eligible}}
-          <div class="reward-badge">
-            <p>SPECIAL REWARD INCLUDED!</p>
-            <p>You've earned a 15% discount on your next design project with us!</p>
-            <p>Use code: <strong>LIIGHT-{{discount_code}}</strong></p>
-            <p>Valid for 12 months from today</p>
+          <div class="impact-message">
+            <h3 style="margin-top: 0;">Your Impact</h3>
+            <p>Your donation directly supports our mission to create innovative, sustainable design solutions that make a difference in our community.</p>
           </div>
-          {{/if}}
           
-          <p>Your donation is greatly appreciated and will be used to support our ongoing projects and initiatives. If you have any questions about your donation or would like to learn more about our work, please don't hesitate to contact us.</p>
+          <p>This email serves as your official receipt for tax purposes. Please keep it for your records.</p>
+          
+          <p>If you have any questions about your donation, please contact us at <a href="mailto:liightdesigninc@gmail.com" style="color: #00C44F;">liightdesigninc@gmail.com</a>.</p>
           
           <p style="margin-top: 30px;">With gratitude,<br><strong>The LIIGHT DESIGN Team</strong></p>
         </div>
         
         <div class="footer">
           <p>© 2025 LIIGHT DESIGN INC. All rights reserved.</p>
-          <p>This receipt is for your records and tax purposes.</p>
+          <p>This is an automated receipt for your donation.</p>
         </div>
       </div>
     </body>
     </html>
-  `,
+  `
+};
 
-};  // Close EMAIL_TEMPLATES object
-
-export const EMAILJS_SETUP_INSTRUCTIONS = `
-To set up EmailJS for LIIGHT DESIGN INC:
-
-1. Create an account at https://www.emailjs.com/
-2. Create a new service (Gmail, Outlook, etc.)
-3. Create four email templates:
-   - Template ID: 'donation_template' (use DONATION_TEMPLATE HTML above)
-   - Template ID: 'project_inquiry_template' (use PROJECT_INQUIRY_TEMPLATE HTML above)
-   - Template ID: 'thank_you_template' (use THANK_YOU_TEMPLATE HTML above)
-   - Template ID: 'donation_receipt_template' (use DONATION_RECEIPT_TEMPLATE HTML above)
-4. Get your Service ID and Public Key
-5. Replace the placeholders in the components:
-   - YOUR_SERVICE_ID
-   - YOUR_PUBLIC_KEY
-   - donation_template
-   - project_inquiry_template
-   - thank_you_template
-   - donation_receipt_template
-
-Template Variables to use in EmailJS:
-Donation Template: {{donation_amount}}, {{from_name}}, {{from_email}}, {{message}}, {{billing_name}}, {{billing_address}}, {{discount_eligible}}
-Project Inquiry Template: {{from_name}}, {{from_email}}, {{project_file}}
-Thank You Template: {{name}}, {{project_file}}
-Donation Receipt Template: {{donor_name}}, {{donation_amount}}, {{receipt_id}}, {{donation_date}}, {{donor_email}}, {{billing_address}}, {{last_four}}, {{discount_eligible}}, {{discount_code}}
-`;
+export { EMAIL_TEMPLATES };

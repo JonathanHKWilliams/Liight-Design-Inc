@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Heart } from 'lucide-react';
 import Popup from '../common/Popup';
+import LegalModal from '../legal/LegalModal';
 
 interface DonationModalProps {
   isOpen: boolean;
@@ -18,6 +19,10 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  
+  // Legal modal state
+  const [legalModalOpen, setLegalModalOpen] = useState(false);
+  const [legalModalType, setLegalModalType] = useState<'terms' | 'privacy'>('terms');
   const [successTitle, setSuccessTitle] = useState('');
   const [donationFrequency, setDonationFrequency] = useState<'one-time' | 'monthly'>('one-time');
   // Test mode flag - set to true to accept any card details
@@ -194,6 +199,19 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
   // Create a portal container if it doesn't exist
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
   
+  // Reset form when modal is opened
+  useEffect(() => {
+    if (isOpen) {
+      // Reset form state when modal opens
+      setSelectedAmount(null);
+      setCurrentStep(1);
+      setDonorInfo({ name: '', email: '', message: '' });
+      setBillingInfo({ firstName: '', lastName: '', address: '', city: '', state: '', zipCode: '', country: '' });
+      setCardInfo({ cardNumber: '', expiryDate: '', cvv: '', cardholderName: '' });
+      setShowSuccessPopup(false);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     // Check if the portal container already exists
     let container = document.getElementById('donation-modal-portal');
@@ -657,7 +675,15 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
                     
                     <div className="pt-4">
                       <p className="font-poppins text-sm text-gray-400 mb-4">
-                        By clicking "Complete Donation", you agree to our <a href="#" className="text-secondary hover:underline">Terms of Service</a> and <a href="#" className="text-secondary hover:underline">Privacy Policy</a>.
+                        By clicking "Complete Donation", you agree to our <a href="terms of service" onClick={(e) => {
+                          e.preventDefault();
+                          setLegalModalType('terms');
+                          setLegalModalOpen(true);
+                        }} className="text-secondary hover:underline">Terms of Service</a> and <a href="privacy policy" onClick={(e) => {
+                          e.preventDefault();
+                          setLegalModalType('privacy');
+                          setLegalModalOpen(true);
+                        }} className="text-secondary hover:underline">Privacy Policy</a>.
                       </p>
                     </div>
                     
@@ -689,22 +715,21 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
         portalContainer
       )}
 
-      {/* Success Popup */}
+      {/* Success/Error Popup */}
       <Popup
         isOpen={showSuccessPopup}
         onClose={handleCloseSuccessPopup}
         title={successTitle}
         message={successMessage}
-        type="success"
-      />
-      {/* Success/Error Popup */}
-      <Popup
-        isOpen={showSuccessPopup}
-        onClose={() => setShowSuccessPopup(false)}
-        title={successTitle}
-        message={successMessage}
         type={successTitle.includes('Error') ? 'error' : 'success'}
         zIndex={10000}
+      />
+      
+      {/* Legal Modal */}
+      <LegalModal
+        isOpen={legalModalOpen}
+        onClose={() => setLegalModalOpen(false)}
+        type={legalModalType}
       />
     </>
   );
