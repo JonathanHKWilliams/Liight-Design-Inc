@@ -7,9 +7,15 @@ import bodyParser from 'body-parser';
 dotenv.config();
 console.log("Mailjet Public Key:", process.env.MAILJET_API_KEY);
 console.log("Mailjet Secret Key:", process.env.MAILJET_SECRET_KEY);
+console.log("DKIM Private Key:", process.env.DKIM_PRIVATE_KEY);
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
+
+// Add a test route to confirm Express is working
+app.get('/api/test', (req, res) => {
+  res.json({ message: "Backend connected!" });
+});
 
 // Middleware
 app.use(cors());
