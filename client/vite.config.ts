@@ -33,7 +33,7 @@ export default defineConfig({
   },
   // Add build configuration for production
   build: {
-    outDir: '../server/public', // Optional: Build directly to server's public folder
+    outDir: '../dist', // Optional: Build directly to server's public folder
     emptyOutDir: true,
     sourcemap: true // Recommended for debugging
   }
