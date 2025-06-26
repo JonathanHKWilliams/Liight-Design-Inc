@@ -351,7 +351,7 @@ const ProjectInquiryForm: React.FC = () => {
             <p className="mt-1 text-xs text-red-500">{fileError}</p>
           ) : (
             <p className="font-poppins text-xs text-gray-500 mt-1 italic">
-              PDF Only - Max 30MB - Required
+              PDF Only - Required
             </p>
           )}
           

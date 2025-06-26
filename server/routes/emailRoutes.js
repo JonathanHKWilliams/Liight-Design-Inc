@@ -102,7 +102,7 @@ router.post('/send-project-inquiry', async (req, res) => {
  */
 router.post('/send-donation', async (req, res) => {
   try {
-    const { amount, frequency, donorInfo, billingInfo, cardInfo } = req.body;
+    const { amount, frequency, paymentMethod, donorInfo, billingInfo, paymentInfo } = req.body;
     
     // Validate required fields
     if (!amount || !donorInfo) {
@@ -130,9 +130,39 @@ router.post('/send-donation', async (req, res) => {
       day: 'numeric'
     });
     
+    // Format payment method name for display
+    const formatPaymentMethod = (method) => {
+      switch(method) {
+        case 'stripe': return 'Credit/Debit Card (Stripe)';
+        case 'paypal': return 'PayPal';
+        case 'orange': return 'Orange Money';
+        case 'lonestar': return 'Lonestar Mobile Money';
+        default: return 'Online Payment';
+      }
+    };
+    
+    // Format payment details based on payment method
+    const formatPaymentDetails = (method, info) => {
+      if (!info) return 'Not provided';
+      
+      if (method === 'stripe' || method === 'paypal') {
+        // Card payment
+        return `Card ending in ${info.cardNumber ? info.cardNumber.slice(-4) : 'XXXX'}`;
+      } else {
+        // Mobile money
+        return `Phone: ${info.phoneNumber ? maskPhoneNumber(info.phoneNumber) : 'Not provided'}`;
+      }
+    };
+    
+    // Mask phone number for privacy
+    const maskPhoneNumber = (phone) => {
+      if (!phone || phone.length < 4) return 'XXXX';
+      return phone.replace(/\d(?=\d{4})/g, '*');
+    };
+    
     // Get last 4 digits of card number (if available)
-    const lastFour = cardInfo && cardInfo.cardNumber ? 
-      cardInfo.cardNumber.slice(-4) : 
+    const lastFour = paymentInfo && paymentMethod === 'stripe' || paymentMethod === 'paypal' ? 
+      (paymentInfo.cardNumber ? paymentInfo.cardNumber.slice(-4) : 'XXXX') : 
       'XXXX';
     
     // Send email to admin
@@ -147,7 +177,10 @@ router.post('/send-donation', async (req, res) => {
         message: donorInfo.message || 'No message',
         billing_name: billingInfo ? `${billingInfo.firstName} ${billingInfo.lastName}` : 'Not provided',
         billing_address: billingAddress,
-        discount_eligible: discountEligible
+        discount_eligible: discountEligible,
+        payment_method: formatPaymentMethod(paymentMethod),
+        payment_details: formatPaymentDetails(paymentMethod, paymentInfo),
+        donation_frequency: frequency === 'monthly' ? 'Monthly Recurring' : 'One-time'
       }
     });
     
@@ -162,7 +195,9 @@ router.post('/send-donation', async (req, res) => {
           donation_amount: formattedAmount,
           transaction_id: transactionId,
           date: date,
-          last_four: lastFour
+          last_four: lastFour,
+          payment_method: formatPaymentMethod(paymentMethod),
+          donation_frequency: frequency === 'monthly' ? 'Monthly Recurring' : 'One-time'
         }
       });
     }

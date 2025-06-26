@@ -39,8 +39,8 @@ const EMAIL_TEMPLATES = {
           padding: 30px; 
         }
         .donation-amount { 
-          background: linear-gradient(135deg, #00C44F, #003F12); 
-          color: white; 
+          background: #f8f9fa; 
+          color: #003F12; 
           padding: 20px; 
           border-radius: 12px; 
           text-align: center; 
@@ -63,8 +63,8 @@ const EMAIL_TEMPLATES = {
           font-family: 'Changa', Arial, sans-serif; 
         }
         .reward-badge { 
-          background: linear-gradient(45deg, #FFD700, #FFA500); 
-          color: #003F12; 
+          background: #f8f9fa; 
+          color:rgb(0, 0, 0); 
           padding: 15px; 
           border-radius: 8px; 
           text-align: center; 
@@ -72,7 +72,7 @@ const EMAIL_TEMPLATES = {
           margin: 20px 0; 
         }
         .footer { 
-          background: #003F12; 
+          background:rgb(0, 0, 0); 
           color: white; 
           padding: 20px; 
           text-align: center; 
@@ -106,12 +106,17 @@ const EMAIL_TEMPLATES = {
             <p><strong>Address:</strong> \${billing_address}</p>
           </div>
           
-          
+          <div class="info-section">
+            <h3>Payment Information</h3>
+            <p><strong>Payment Method:</strong> \${payment_method}</p>
+            <p><strong>Payment Details:</strong> \${payment_details}</p>
+            <p><strong>Donation Frequency:</strong> \${donation_frequency}</p>
+          </div>
 
           <p>This donation will help us complete our project and bring our vision to life. Please follow up with the donor within 24 hours to express our gratitude.</p>
         </div>
         
-        <div class="footer">
+        <div class="footer" style="background-color:rgb(0, 0, 0); color: white; padding: 20px; text-align: center; font-size: 14px;">
           <p>© 2025 LIIGHT DESIGN INC. All rights reserved.</p>
           <p>This is an automated notification from your website.</p>
         </div>
@@ -160,10 +165,10 @@ const EMAIL_TEMPLATES = {
           padding: 30px; 
         }
         .client-info { 
-          background: linear-gradient(135deg, #00C44F10, #003F1210); 
+          background: #f8f9fa; 
           padding: 20px; 
           border-radius: 12px; 
-          border-left: 4px solid #00C44F; 
+          border-left: 4px solid rgb(0, 0, 0); 
           margin: 20px 0; 
         }
         .info-section { 
@@ -173,20 +178,20 @@ const EMAIL_TEMPLATES = {
           margin: 15px 0; 
         }
         .info-section h3 { 
-          color: #003F12; 
+          color: rgb(0, 0, 0); 
           margin-top: 0; 
           font-family: 'Changa', Arial, sans-serif; 
         }
         .cta-section { 
-          background: linear-gradient(135deg, #003F12, #00C44F); 
-          color: white; 
+          background: #f8f9fa; 
+          color: black; 
           padding: 20px; 
           border-radius: 8px; 
           text-align: center; 
           margin: 20px 0; 
         }
         .footer { 
-          background: #003F12; 
+          background:rgb(0, 0, 0); 
           color: white; 
           padding: 20px; 
           text-align: center; 
@@ -234,7 +239,7 @@ const EMAIL_TEMPLATES = {
           <p><strong>Important:</strong> Please reply directly to this email to respond to the client. Their email address is: <a href="mailto:\${from_email}" style="color: #00C44F;">\${from_email}</a></p>
         </div>
         
-        <div class="footer">
+        <div class="footer" style="background-color:rgb(0, 0, 0); color: white; padding: 20px; text-align: center; font-size: 14px;">
           <p>© 2025 LIIGHT DESIGN INC. All rights reserved.</p>
           <p>This inquiry was submitted through your website's project form.</p>
         </div>
@@ -283,7 +288,7 @@ const EMAIL_TEMPLATES = {
           padding: 30px; 
         }
         .thank-you-message { 
-          background: linear-gradient(135deg, #00C44F10, #003F1210); 
+          background: #f8f9fa; 
           padding: 20px; 
           border-radius: 12px; 
           border-left: 4px solid #00C44F; 
@@ -301,15 +306,15 @@ const EMAIL_TEMPLATES = {
           font-family: 'Changa', Arial, sans-serif; 
         }
         .next-steps { 
-          background: linear-gradient(135deg, #003F12, #00C44F); 
-          color: white; 
+          background: #f8f9fa; 
+          color: black; 
           padding: 20px; 
           border-radius: 8px; 
           text-align: center; 
           margin: 20px 0; 
         }
         .footer { 
-          background: #003F12; 
+          background:rgb(0, 0, 0); 
           color: white; 
           padding: 20px; 
           text-align: center; 
@@ -350,7 +355,7 @@ const EMAIL_TEMPLATES = {
           <p style="margin-top: 30px;">Best regards,<br><strong>The LIIGHT DESIGN Team</strong></p>
         </div>
         
-        <div class="footer">
+        <div class="footer" style="background-color:rgb(0, 0, 0); color: white; padding: 20px; text-align: center; font-size: 14px;">
           <p>© 2025 LIIGHT DESIGN INC. All rights reserved.</p>
           <p>This is an automated response to your project inquiry submission.</p>
         </div>
@@ -399,15 +404,15 @@ const EMAIL_TEMPLATES = {
           padding: 30px; 
         }
         .thank-you-message { 
-          background: linear-gradient(135deg, #00C44F10, #003F1210); 
+          background: #f8f9fa; 
           padding: 20px; 
           border-radius: 12px; 
           border-left: 4px solid #00C44F; 
           margin: 20px 0; 
         }
         .donation-amount { 
-          background: linear-gradient(135deg, #00C44F, #003F12); 
-          color: white; 
+          background: #f8f9fa; 
+          color: black; 
           padding: 20px; 
           border-radius: 12px; 
           text-align: center; 
@@ -430,8 +435,8 @@ const EMAIL_TEMPLATES = {
           font-family: 'Changa', Arial, sans-serif; 
         }
         .impact-message { 
-          background: linear-gradient(135deg, #003F12, #00C44F); 
-          color: white; 
+          background: #f8f9fa; 
+          color: black; 
           padding: 20px; 
           border-radius: 8px; 
           text-align: center; 
@@ -485,7 +490,7 @@ const EMAIL_TEMPLATES = {
           <p style="margin-top: 30px;">With gratitude,<br><strong>The LIIGHT DESIGN Team</strong></p>
         </div>
         
-        <div class="footer">
+        <div class="footer" style="background-color:rgb(0, 0, 0); color: white; padding: 20px; text-align: center; font-size: 14px;">
           <p>© 2025 LIIGHT DESIGN INC. All rights reserved.</p>
           <p>This is an automated receipt for your donation.</p>
         </div>

@@ -2,11 +2,10 @@
  * File validation and security utilities for Liight Design
  */
 
-// Maximum file size in bytes (30MB)
-export const MAX_FILE_SIZE = 30 * 1024 * 1024;
+// No maximum file size limit - system handles large files by providing links instead of attachments
 
 /**
- * Validates if a file is a PDF and within size limits
+ * Validates if a file is a PDF
  * @param file The file to validate
  * @returns An object with validation result and error message if any
  */
@@ -20,13 +19,10 @@ export const validatePdfFile = (file: File | null): { isValid: boolean; errorMes
     return { isValid: false, errorMessage: 'Only PDF files are allowed' };
   }
 
-  // Check file size (30MB limit)
-  if (file.size > MAX_FILE_SIZE) {
-    return { 
-      isValid: false, 
-      errorMessage: `File size exceeds the 30MB limit (${(file.size / (1024 * 1024)).toFixed(2)}MB)` 
-    };
-  }
+  // No file size limit - system handles large files by providing links instead of attachments
+  // Display file size information for user awareness
+  const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+  console.log(`PDF file size: ${fileSizeMB}MB - No size limit enforced`);
 
   return { isValid: true, errorMessage: '' };
 };

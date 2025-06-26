@@ -4,6 +4,12 @@ import { X, Heart } from 'lucide-react';
 import Popup from '../common/Popup';
 import LegalModal from '../legal/LegalModal';
 
+// Import payment method logos
+import stripeLogo from '../layout/assets/stripe-logo.png';
+import paypalLogo from '../layout/assets/paypal-logo.png';
+import orangeLogo from '../layout/assets/orange-money-logo.png';
+import lonestarLogo from '../layout/assets/lonestar-logo.png';
+
 interface DonationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -25,9 +31,7 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
   const [legalModalType, setLegalModalType] = useState<'terms' | 'privacy'>('terms');
   const [successTitle, setSuccessTitle] = useState('');
   const [donationFrequency, setDonationFrequency] = useState<'one-time' | 'monthly'>('one-time');
-  // Test mode flag - set to true to accept any card details
-  const [testMode] = useState(true);
-  
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('stripe'); // 'stripe', 'paypal', 'orange', 'lonestar'
   const [donorInfo, setDonorInfo] = useState({
     name: '',
     email: '',
@@ -51,7 +55,13 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
     cardholderName: ''
   });
 
+  const [mobileMoneyInfo, setMobileMoneyInfo] = useState({
+    phoneNumber: '',
+    accountName: ''
+  });
 
+  // Test mode flag - set to true to accept any payment details
+  const [testMode] = useState(true);
 
   const sendDonationEmails = async () => {
     try {
@@ -59,6 +69,7 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
       const payload = {
         amount: selectedAmount || 0,
         frequency: donationFrequency,
+        paymentMethod: selectedPaymentMethod,
         donorInfo: {
           name: donorInfo.name || '',
           email: donorInfo.email || '',
@@ -73,11 +84,14 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
           zipCode: billingInfo.zipCode,
           country: billingInfo.country
         },
-        cardInfo: {
+        paymentInfo: selectedPaymentMethod === 'stripe' || selectedPaymentMethod === 'paypal' ? {
           cardNumber: cardInfo.cardNumber,
           expiryDate: cardInfo.expiryDate,
           cvv: cardInfo.cvv,
           cardholderName: cardInfo.cardholderName
+        } : {
+          phoneNumber: mobileMoneyInfo.phoneNumber,
+          accountName: mobileMoneyInfo.accountName
         }
       };
 
@@ -114,12 +128,16 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
         console.log('Donation details:', {
           amount: selectedAmount,
           frequency: donationFrequency,
+          paymentMethod: selectedPaymentMethod,
           donor: donorInfo,
           billing: billingInfo,
-          cardInfo: {
+          paymentInfo: selectedPaymentMethod === 'stripe' || selectedPaymentMethod === 'paypal' ? {
             ...cardInfo,
-            cardNumber: '****-****-****-' + cardInfo.cardNumber.slice(-4),
+            cardNumber: '****-****-****-' + (cardInfo.cardNumber.length >= 4 ? cardInfo.cardNumber.slice(-4) : 'XXXX'),
             cvv: '***'
+          } : {
+            phoneNumber: mobileMoneyInfo.phoneNumber.replace(/\d(?=\d{4})/g, '*'),
+            accountName: mobileMoneyInfo.accountName
           }
         });
       }
@@ -163,6 +181,7 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
       setDonorInfo({ name: '', email: '', message: '' });
       setBillingInfo({ firstName: '', lastName: '', address: '', city: '', state: '', zipCode: '', country: '' });
       setCardInfo({ cardNumber: '', expiryDate: '', cvv: '', cardholderName: '' });
+      setMobileMoneyInfo({ phoneNumber: '', accountName: '' });
       
       // Show success popup
       setSuccessTitle(title);
@@ -193,8 +212,12 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
   
   // In test mode, we're more lenient with card validation
   const isStep3Valid = testMode
-    ? cardInfo.cardNumber.length > 0 && cardInfo.expiryDate.length > 0 && cardInfo.cvv.length > 0 && cardInfo.cardholderName
-    : cardInfo.cardNumber.length >= 19 && cardInfo.expiryDate.length === 5 && cardInfo.cvv.length === 3 && cardInfo.cardholderName;
+    ? (selectedPaymentMethod === 'stripe' || selectedPaymentMethod === 'paypal')
+      ? cardInfo.cardNumber.length > 0 && cardInfo.expiryDate.length > 0 && cardInfo.cvv.length > 0 && cardInfo.cardholderName
+      : mobileMoneyInfo.phoneNumber.length > 0 && mobileMoneyInfo.accountName.length > 0
+    : (selectedPaymentMethod === 'stripe' || selectedPaymentMethod === 'paypal')
+      ? cardInfo.cardNumber.length >= 19 && cardInfo.expiryDate.length === 5 && cardInfo.cvv.length === 3 && cardInfo.cardholderName
+      : mobileMoneyInfo.phoneNumber.length >= 10 && mobileMoneyInfo.accountName.length > 0;
 
   // Create a portal container if it doesn't exist
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
@@ -208,6 +231,7 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
       setDonorInfo({ name: '', email: '', message: '' });
       setBillingInfo({ firstName: '', lastName: '', address: '', city: '', state: '', zipCode: '', country: '' });
       setCardInfo({ cardNumber: '', expiryDate: '', cvv: '', cardholderName: '' });
+      setMobileMoneyInfo({ phoneNumber: '', accountName: '' });
       setShowSuccessPopup(false);
     }
   }, [isOpen]);
@@ -597,77 +621,193 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
                       Please enter your payment details
                     </p>
                     
+                    {/* Test Mode Notice */}
+                    <div className="p-4 bg-gray-50 border border-gray-100 rounded-lg mb-6">
+                      <h5 className="font-poppins font-medium text-gray-800 mb-2">Test Mode Active</h5>
+                      <p className="text-sm text-gray-700">
+                        This is a test environment. Please do not enter real payment information.
+                        You can use any test data for the card fields below.
+                      </p>
+                    </div>
+                    
+                    {/* Payment Method Selection */}
+                    <div className="mb-6">
+                      <h4 className="font-poppins font-medium text-gray-800 mb-3">Select Payment Method</h4>
+                      <div className="grid grid-cols-2 gap-3 mb-3">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPaymentMethod('stripe')}
+                          className={`py-3 px-4 rounded-lg font-poppins font-medium transition-all duration-200 ${selectedPaymentMethod === 'stripe' ? 'bg-secondary text-white' : 'bg-gray-100 text-gray-700'} flex flex-col items-center justify-center`}
+                        >
+                          <img 
+                            src={stripeLogo} 
+                            alt="Stripe" 
+                            className="h-6 mb-1 object-contain" 
+                            style={{ filter: selectedPaymentMethod === 'stripe' ? 'brightness(0) invert(1)' : 'none' }} 
+                          />
+                          <span className="text-xs">Stripe</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPaymentMethod('paypal')}
+                          className={`py-3 px-4 rounded-lg font-poppins font-medium transition-all duration-200 ${selectedPaymentMethod === 'paypal' ? 'bg-[#003087] text-white' : 'bg-gray-100 text-gray-700'} flex flex-col items-center justify-center`}
+                        >
+                          <img 
+                            src={paypalLogo} 
+                            alt="PayPal" 
+                            className="h-6 mb-1 object-contain" 
+                            style={{ filter: selectedPaymentMethod === 'paypal' ? 'brightness(0) invert(1)' : 'none' }} 
+                          />
+                          <span className="text-xs">PayPal</span>
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPaymentMethod('orange')}
+                          className={`py-3 px-4 rounded-lg font-poppins font-medium transition-all duration-200 ${selectedPaymentMethod === 'orange' ? 'bg-[#FF6600] text-white' : 'bg-gray-100 text-gray-700'} flex flex-col items-center justify-center`}
+                        >
+                          <img 
+                            src={orangeLogo} 
+                            alt="Orange Money" 
+                            className="h-6 mb-1 object-contain" 
+                            style={{ filter: selectedPaymentMethod === 'orange' ? 'brightness(0) invert(1)' : 'none' }} 
+                          />
+                          <span className="text-xs">Orange Money</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPaymentMethod('lonestar')}
+                          className={`py-3 px-4 rounded-lg font-poppins font-medium transition-all duration-200 ${selectedPaymentMethod === 'lonestar' ? 'bg-yellow-500 text-white' : 'bg-gray-100 text-gray-700'} flex flex-col items-center justify-center`}
+                        >
+                          <img 
+                            src={lonestarLogo} 
+                            alt="Lonestar Momo" 
+                            className="h-6 mb-1 object-contain" 
+                            style={{ filter: selectedPaymentMethod === 'lonestar' ? 'brightness(0) invert(1)' : 'none' }} 
+                          />
+                          <span className="text-xs">Lonestar Momo</span>
+                        </button>
+                      </div>
+                    </div>
+                    
                     <div className="space-y-4">
-                      <div>
-                        <label className="block font-poppins text-sm font-medium text-gray-700 mb-2">
-                          Card Number *
-                        </label>
-                        <input
-                          type="text"
-                          value={cardInfo.cardNumber}
-                          onChange={(e) => setCardInfo({...cardInfo, cardNumber: e.target.value})}
-                          placeholder="1234 5678 9012 3456"
-                          maxLength={19}
-                          required
-                          className="w-full px-4 py-3 bg-lightGrey rounded-lg border-0 font-poppins text-gray-700 placeholder-gray-500 focus:ring-2 focus:ring-secondary focus:outline-none transition-all duration-200"
-                        />
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block font-poppins text-sm font-medium text-gray-700 mb-2">
-                            Expiry Date *
-                          </label>
-                          <input
-                            type="text"
-                            value={cardInfo.expiryDate}
-                            onChange={(e) => setCardInfo({...cardInfo, expiryDate: e.target.value})}
-                            placeholder="MM/YY"
-                            maxLength={5}
-                            required
-                            className="w-full px-4 py-3 bg-lightGrey rounded-lg border-0 font-poppins text-gray-700 placeholder-gray-500 focus:ring-2 focus:ring-secondary focus:outline-none transition-all duration-200"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block font-poppins text-sm font-medium text-gray-700 mb-2">
-                            CVV *
-                          </label>
-                          <input
-                            type="text"
-                            value={cardInfo.cvv}
-                            onChange={(e) => setCardInfo({...cardInfo, cvv: e.target.value})}
-                            placeholder="123"
-                            maxLength={4}
-                            required
-                            className="w-full px-4 py-3 bg-lightGrey rounded-lg border-0 font-poppins text-gray-700 placeholder-gray-500 focus:ring-2 focus:ring-secondary focus:outline-none transition-all duration-200"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="block font-poppins text-sm font-medium text-gray-700 mb-2">
-                          Cardholder Name *
-                        </label>
-                        <input
-                          type="text"
-                          value={cardInfo.cardholderName}
-                          onChange={(e) => setCardInfo({...cardInfo, cardholderName: e.target.value})}
-                          placeholder="Name as it appears on card"
-                          required
-                          className="w-full px-4 py-3 bg-lightGrey rounded-lg border-0 font-poppins text-gray-700 placeholder-gray-500 focus:ring-2 focus:ring-secondary focus:outline-none transition-all duration-200"
-                        />
-                      </div>
+                      {/* Card Payment Fields (Stripe/PayPal) */}
+                      {(selectedPaymentMethod === 'stripe' || selectedPaymentMethod === 'paypal') && (
+                        <>
+                          <div>
+                            <label className="block font-poppins text-sm font-medium text-gray-700 mb-2">
+                              Card Number * <span className="text-xs text-gray-600">(Use any number for test mode)</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={cardInfo.cardNumber}
+                              onChange={(e) => setCardInfo({...cardInfo, cardNumber: e.target.value})}
+                              placeholder="e.g. 4242 4242 4242 4242"
+                              maxLength={19}
+                              required
+                              className="w-full px-4 py-3 bg-lightGrey rounded-lg border-0 font-poppins text-gray-700 placeholder-gray-500 focus:ring-2 focus:ring-secondary focus:outline-none transition-all duration-200"
+                            />
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block font-poppins text-sm font-medium text-gray-700 mb-2">
+                                Expiry Date * <span className="text-xs text-gray-600">(Any future date)</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={cardInfo.expiryDate}
+                                onChange={(e) => setCardInfo({...cardInfo, expiryDate: e.target.value})}
+                                placeholder="MM/YY"
+                                maxLength={5}
+                                required
+                                className="w-full px-4 py-3 bg-lightGrey rounded-lg border-0 font-poppins text-gray-700 placeholder-gray-500 focus:ring-2 focus:ring-secondary focus:outline-none transition-all duration-200"
+                              />
+                            </div>
+                            
+                            <div>
+                              <label className="block font-poppins text-sm font-medium text-gray-700 mb-2">
+                                CVV * <span className="text-xs text-gray-600">(Any 3 digits)</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={cardInfo.cvv}
+                                onChange={(e) => setCardInfo({...cardInfo, cvv: e.target.value})}
+                                placeholder="123"
+                                maxLength={4}
+                                required
+                                className="w-full px-4 py-3 bg-lightGrey rounded-lg border-0 font-poppins text-gray-700 placeholder-gray-500 focus:ring-2 focus:ring-secondary focus:outline-none transition-all duration-200"
+                              />
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <label className="block font-poppins text-sm font-medium text-gray-700 mb-2">
+                              Cardholder Name * <span className="text-xs text-gray-600">(Any name)</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={cardInfo.cardholderName}
+                              onChange={(e) => setCardInfo({...cardInfo, cardholderName: e.target.value})}
+                              placeholder="Name as it appears on card"
+                              required
+                              className="w-full px-4 py-3 bg-lightGrey rounded-lg border-0 font-poppins text-gray-700 placeholder-gray-500 focus:ring-2 focus:ring-secondary focus:outline-none transition-all duration-200"
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {/* Mobile Money Fields (Orange/Lonestar) */}
+                      {(selectedPaymentMethod === 'orange' || selectedPaymentMethod === 'lonestar') && (
+                        <>
+                          <div>
+                            <label className="block font-poppins text-sm font-medium text-gray-700 mb-2">
+                              Phone Number * <span className="text-xs text-gray-600">(Use any number for test mode)</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={mobileMoneyInfo.phoneNumber}
+                              onChange={(e) => setMobileMoneyInfo({...mobileMoneyInfo, phoneNumber: e.target.value})}
+                              placeholder={selectedPaymentMethod === 'orange' ? "e.g. +231 77 123 4567" : "e.g. +231 88 123 4567"}
+                              required
+                              className="w-full px-4 py-3 bg-lightGrey rounded-lg border-0 font-poppins text-gray-700 placeholder-gray-500 focus:ring-2 focus:ring-secondary focus:outline-none transition-all duration-200"
+                            />
+                          </div>
+                          
+                          <div>
+                            <label className="block font-poppins text-sm font-medium text-gray-700 mb-2">
+                              Account Name * <span className="text-xs text-gray-600">(Any name)</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={mobileMoneyInfo.accountName}
+                              onChange={(e) => setMobileMoneyInfo({...mobileMoneyInfo, accountName: e.target.value})}
+                              placeholder="Name registered with mobile money account"
+                              required
+                              className="w-full px-4 py-3 bg-lightGrey rounded-lg border-0 font-poppins text-gray-700 placeholder-gray-500 focus:ring-2 focus:ring-secondary focus:outline-none transition-all duration-200"
+                            />
+                          </div>
+
+                          <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                            <p className="text-sm text-gray-700">
+                              {selectedPaymentMethod === 'orange' ? 
+                                "For Orange Money test payments, use any phone number and name." : 
+                                "For Lonestar Momo test payments, use any phone number and name."}
+                            </p>
+                          </div>
+                        </>
+                      )}
                     </div>
                     
                     <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-poppins text-sm text-gray-600">Donation Amount:</span>
-                        <span className="font-poppins font-medium">${selectedAmount}</span>
+                        <span className="font-poppins font-bold text-black">${selectedAmount}</span>
                       </div>
                       
                       {selectedAmount && selectedAmount >= 100 && (
-                        <div className="text-xs text-green-600 mt-2 p-2 bg-green-50 rounded border border-green-100">
+                        <div className="text-xs text-gray-600 mt-2 p-2 bg-gray-50 rounded border border-gray-100">
                           Donations of $100 or more qualify for a 15% discount on your next design project!
                         </div>
                       )}
