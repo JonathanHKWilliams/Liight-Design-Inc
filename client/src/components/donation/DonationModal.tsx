@@ -96,7 +96,7 @@ const DonationModal: React.FC<DonationModalProps> = ({ isOpen, onClose }) => {
       };
 
       // Send the donation data to the backend API
-      const response = await fetch('http://localhost:5000/api/send-donation', {
+      const response = await fetch('https://liight-design-backend.onrender.com/api/send-donation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

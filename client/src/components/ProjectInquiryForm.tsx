@@ -125,7 +125,7 @@ const ProjectInquiryForm: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/project-inquiry-with-pdf', {
+      const response = await fetch('https://liight-design-backend.onrender.com/api/project-inquiry-with-pdf', {
         method: 'POST',
         // Don't set Content-Type header - browser will set it with boundary for multipart/form-data
         body: formDataToSend,
